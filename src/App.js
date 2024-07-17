@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 
-const BASE_URL = "/"; //"http://localhost:8080/user/";
+const BASE_URL = "https://basic-mern-app-ptn6.onrender.com/user/"; //"http://localhost:8080/user/";
 
 const statusColorMap = {
   under: "neutral",
