@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 
-const BASE_URL = "/user/"; //"http://localhost:8080/user/";
+const BASE_URL = "/"; //"http://localhost:8080/user/";
 
 const statusColorMap = {
   under: "neutral",
