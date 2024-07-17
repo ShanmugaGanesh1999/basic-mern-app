@@ -28,7 +28,7 @@ const user = {
       message: (props) => `${props.value} is not a valid email`,
     },
   },
-  dob: { type: Date, max: new Date("2010") },
+  dob: { type: Date, max: new Date("2014") },
   gender: {
     type: String,
     enum: ["male", "female", "others"],
