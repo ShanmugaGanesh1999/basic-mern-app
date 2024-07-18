@@ -6,10 +6,17 @@ import { useEffect, useState } from "react";
 const BASE_URL = "https://basic-mern-app-ptn6.onrender.com/user/"; //"http://localhost:8080/user/";
 
 const statusColorMap = {
-  under: "neutral",
+  under: "blue",
   normal: "teal",
   over: "yellow",
   obese: "red",
+};
+
+const statusIntensityMap = {
+  under: 600,
+  normal: 500,
+  over: 400,
+  obese: 400,
 };
 
 function formatDate(date) {
@@ -57,6 +64,26 @@ function NavBar({ count, setError, setShowModal, setAction }) {
             </svg>
           </span>
         </button>
+        <a
+          className="py-4 px-1 inline-flex  items-center gap-2 border-b-2 border-purple-600 text-sm font-medium whitespace-nowrap"
+          href="#"
+          aria-current="page"
+        >
+          <p
+            className={`uppercase text-purple-600 focus:outline-none focus:text-rose-800 font-medium px-1 py-4 whitespace-nowrap text-sm`}
+          >
+            BMI Calculator
+          </p>
+          - (
+          {Object.keys(statusColorMap).map((type) => (
+            <p
+              className={`px-1 py-4 whitespace-nowrap text-sm text-${statusColorMap[type]}-${statusIntensityMap[type]}`}
+            >
+              {type}
+            </p>
+          ))}
+          )
+        </a>
       </nav>
     </div>
   );
@@ -498,9 +525,7 @@ function Table({
                       <tr
                         className={`rounded-xl bg-${
                           statusColorMap[u.status]
-                        }-100 dark:bg-${
-                          statusColorMap[u.status]
-                        }-100`}
+                        }-100 dark:bg-${statusColorMap[u.status]}-100`}
                         key={u._id}
                       >
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
