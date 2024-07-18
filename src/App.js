@@ -68,7 +68,6 @@ function Modal({
   action,
   setAction,
   user,
-  setUser,
   error,
   setError,
   setChanged,
@@ -118,7 +117,7 @@ function Modal({
   async function dbUser(e) {
     e.preventDefault();
 
-    resetState();
+    setError("");
 
     let clientValidationStr = clientValidation();
     if (clientValidationStr.length > 0) {
