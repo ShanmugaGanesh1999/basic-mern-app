@@ -44,6 +44,7 @@ function validate(record) {
 }
 
 function calculateBMI({ weight, height }) {
+  height /= 100;
   let bmi = weight / (height * height);
   if (bmi <= 18.4) return bmiChart[0];
   else if (bmi > 18.4 && bmi <= 24.9) return bmiChart[1];
