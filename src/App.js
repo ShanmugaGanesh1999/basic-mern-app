@@ -17,14 +17,7 @@ function formatDate(date = new Date()) {
   return `${dt.getFullYear()}/${dt.getMonth()}/${dt.getDate()}`;
 }
 
-function NavBar({
-  count,
-  showModal,
-  setShowModal,
-  setChanged,
-  action,
-  setAction,
-}) {
+function NavBar({ count, setError, setShowModal, setAction }) {
   return (
     <div className="mx-5 border-b-2 border-gray-200">
       <nav className="-mb-0.5 flex space-x-6">
@@ -42,6 +35,7 @@ function NavBar({
           onClick={() => {
             setShowModal(true);
             setAction("create");
+            setError("");
           }}
           className="py-4 px-1 inline-flex items-center gap-2 border-b-2 border-transparent text-sm whitespace-nowrap text-gray-500 hover:text-blue-600 focus:outline-none focus:text-blue-600 dark:text-neutral-500 dark:hover:text-blue-500"
           href="#"
@@ -49,8 +43,8 @@ function NavBar({
           <span className="ms-1 py-2.5 px-2.5 rounded-full text-xs font-medium bg-teal-300 text-teal-800 dark:bg-teal-500 dark:text-neutral-100">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
+              width="22"
+              height="22"
               fill="currentColor"
               className="bi bi-person-plus-fill"
               viewBox="0 0 16 16"
@@ -75,6 +69,8 @@ function Modal({
   setAction,
   user,
   setUser,
+  error,
+  setError,
   setChanged,
 }) {
   const [email, setEmail] = useState("");
@@ -84,6 +80,17 @@ function Modal({
   const [gender, setGender] = useState("male");
   const [dob, setDOB] = useState(formatDate());
   const genderList = ["male", "female", "others"];
+
+  function resetState() {
+    setEmail("");
+    setName("");
+    setDOB("");
+    setGender("");
+    setHeight("");
+    setWeight("");
+    setError("");
+    setAction("");
+  }
 
   const [isEdit, setIsEdit] = useState(true);
 
@@ -97,8 +104,27 @@ function Modal({
     setIsEdit(() => false);
   }
 
+  function clientValidation() {
+    if (name.length <= 3)
+      return "Name must be more than or equal to 4 characters";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      return "Please enter a valid email";
+    if (new Date(dob).getFullYear() > 2014)
+      return "DOB can be made only for 2014 born or later";
+    if (height < 55) return "Height must be at least 55 (cm)";
+    if (weight < 35) return "Weight must be at least 35 (kg)";
+  }
+
   async function dbUser(e) {
     e.preventDefault();
+
+    resetState();
+
+    let clientValidationStr = clientValidation();
+    if (clientValidationStr.length > 0) {
+      setError(`CLIENT: ${clientValidationStr}`);
+      return;
+    }
 
     try {
       const res = await fetch(
@@ -124,11 +150,13 @@ function Modal({
       if (data?.status === 200) {
         setShowModal(false);
         setChanged((c) => !c);
-        setAction("");
+        resetState();
       } else {
         console.error(data?.message);
+        setError(`SERVER: ${data.message}`);
       }
     } catch (error) {
+      setError(`EXCEPTION: ${error.message}`);
       console.error(error.message);
     }
   }
@@ -141,11 +169,42 @@ function Modal({
             <div className="relative w-auto my-6 mx-auto max-w-3xl">
               <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
                 <div className="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t">
-                  <h3 className="text-xl text-gray-500 font-semibold">
+                  <h3 className="text-xl text-gray-700 font-semibold">
                     User Form
                   </h3>
                 </div>
                 <div className="relative p-6 flex-auto">
+                  {error.length > 0 ? (
+                    <div className="max-w-sm space-y-3 self-center mb-5">
+                      <div className="space-y-3">
+                        <div
+                          className="max-w-xs bg-white border border-red-200 rounded-xl shadow-lg dark:bg-red-100 dark:border-red-700"
+                          role="alert"
+                        >
+                          <div className="flex p-4">
+                            <div className="flex-shrink-1">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="22"
+                                height="22"
+                                fill="currentColor"
+                                class="bi bi-bug-fill"
+                                viewBox="0 0 16 16"
+                              >
+                                <path d="M4.978.855a.5.5 0 1 0-.956.29l.41 1.352A5 5 0 0 0 3 6h10a5 5 0 0 0-1.432-3.503l.41-1.352a.5.5 0 1 0-.956-.29l-.291.956A5 5 0 0 0 8 1a5 5 0 0 0-2.731.811l-.29-.956z" />
+                                <path d="M13 6v1H8.5v8.975A5 5 0 0 0 13 11h.5a.5.5 0 0 1 .5.5v.5a.5.5 0 1 0 1 0v-.5a1.5 1.5 0 0 0-1.5-1.5H13V9h1.5a.5.5 0 0 0 0-1H13V7h.5A1.5 1.5 0 0 0 15 5.5V5a.5.5 0 0 0-1 0v.5a.5.5 0 0 1-.5.5zm-5.5 9.975V7H3V6h-.5a.5.5 0 0 1-.5-.5V5a.5.5 0 0 0-1 0v.5A1.5 1.5 0 0 0 2.5 7H3v1H1.5a.5.5 0 0 0 0 1H3v1h-.5A1.5 1.5 0 0 0 1 11.5v.5a.5.5 0 1 0 1 0v-.5a.5.5 0 0 1 .5-.5H3a5 5 0 0 0 4.5 4.975" />
+                              </svg>
+                            </div>
+                            <div className="ms-3">
+                              <p className="text-sm dark:text-gray-900">
+                                {error} 🤯
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
                   <form>
                     <div className="max-w-sm space-y-3">
                       <div className="relative">
@@ -270,7 +329,7 @@ function Modal({
                         <input
                           type="number"
                           className="peer text-gray-500 py-3 px-4 ps-11 block w-full bg-gray-100 border-transparent rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-100 dark:border-transparent dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
-                          placeholder="Enter height"
+                          placeholder="Enter height (cm)"
                           value={height}
                           onChange={(e) => setHeight(Number(e.target.value))}
                           required
@@ -295,7 +354,7 @@ function Modal({
                         <input
                           type="number"
                           className="peer text-gray-500 py-3 px-4 ps-11 block w-full bg-gray-100 border-transparent rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-100 dark:border-transparent dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
-                          placeholder="Enter weight"
+                          placeholder="Enter weight (kg)"
                           value={weight}
                           onChange={(e) => setWeight(e.target.value)}
                           required
@@ -385,7 +444,14 @@ function Card({ children }) {
   );
 }
 
-function Table({ users, setUser, setChanged, setAction, setShowModal }) {
+function Table({
+  users,
+  setUser,
+  setError,
+  setChanged,
+  setAction,
+  setShowModal,
+}) {
   const cols = ["name", "email", "dob", "gender", "height", "weight", "action"];
 
   async function deletebUser(id) {
@@ -458,6 +524,7 @@ function Table({ users, setUser, setChanged, setAction, setShowModal }) {
                               setShowModal(true);
                               setAction("edit");
                               setUser(u);
+                              setError("");
                             }}
                             type="button"
                             className="inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-blue-600 hover:text-blue-800 disabled:opacity-50 disabled:pointer-events-none dark:text-blue-500 dark:hover:text-blue-400"
@@ -465,8 +532,8 @@ function Table({ users, setUser, setChanged, setAction, setShowModal }) {
                             <span className="inline-flex justify-center items-center size-[46px] rounded-full text-yellow-400">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
+                                width="22"
+                                height="22"
                                 fill="currentColor"
                                 className="bi bi-pencil-fill"
                                 viewBox="0 0 16 16"
@@ -485,8 +552,8 @@ function Table({ users, setUser, setChanged, setAction, setShowModal }) {
                             <span className="inline-flex justify-center items-center size-[46px] rounded-full text-red-400">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
+                                width="22"
+                                height="22"
                                 fill="currentColor"
                                 className="bi bi-trash3-fill"
                                 viewBox="0 0 16 16"
@@ -510,17 +577,17 @@ function Table({ users, setUser, setChanged, setAction, setShowModal }) {
 
 function EmptyNote() {
   return (
-    <div className="space-y-3">
+    <div className="self-center space-y-3">
       <div
-        className="max-w-xs text-gray-700 bg-white border border-neutral-200 rounded-xl shadow-lg dark:bg-neutral-100 dark:border-neutral-700"
+        className="max-w-xs text-gray-700 bg-white border border-neutral-200 rounded-xl shadow-lg dark:bg-yellow-100 dark:border-yellow-700"
         role="alert"
       >
         <div className="flex p-4">
           <div className="flex-shrink-0">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
+              width="22"
+              height="22"
               fill="currentColor"
               className="bi bi-database-fill-dash"
               viewBox="0 0 16 16"
@@ -530,8 +597,8 @@ function EmptyNote() {
             </svg>
           </div>
           <div className="ms-3 text-gray-700">
-            <p className="text-sm text-gray-900 dark:text-neutral-400">
-              There's no data in the database!!
+            <p className="text-sm text-gray-900 dark:text-neutral-700">
+              There's no data in the database 😱
             </p>
           </div>
         </div>
@@ -546,7 +613,7 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [action, setAction] = useState("");
   const [changed, setChanged] = useState(false);
-
+  const [error, setError] = useState("");
   useEffect(
     function () {
       async function fetchUsers() {
@@ -566,10 +633,9 @@ function App() {
     <>
       <NavBar
         count={users.length}
-        showModal={showModal}
         setShowModal={setShowModal}
-        action={action}
         setAction={setAction}
+        setError={setError}
       />
       <Card>
         {users.length > 0 ? (
@@ -582,6 +648,8 @@ function App() {
             setAction={setAction}
             user={user}
             setUser={setUser}
+            error={error}
+            setError={setError}
           />
         ) : (
           <EmptyNote />
@@ -590,6 +658,8 @@ function App() {
       <Modal
         showModal={showModal}
         action={action}
+        error={error}
+        setError={setError}
         setAction={setAction}
         setShowModal={setShowModal}
         setChanged={setChanged}
