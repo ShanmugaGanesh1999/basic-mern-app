@@ -12,9 +12,9 @@ const statusColorMap = {
   obese: "red",
 };
 
-function formatDate(date = new Date()) {
+function formatDate(date) {
   let dt = new Date(date);
-  return `${dt.getFullYear()}/${dt.getMonth()}/${dt.getDate()}`;
+  return `${dt.getFullYear()}-${dt.getMonth() + 1}-${dt.getDate() + 1}`;
 }
 
 function NavBar({ count, setError, setShowModal, setAction }) {
@@ -96,7 +96,8 @@ function Modal({
   if (isEdit && action === "edit" && Object.keys(user).length > 0) {
     setEmail(user.emailId);
     setName(user.name);
-    setDOB(user.dob);
+    setDOB(new Date(user.dob).toISOString().substring(0, 10));
+    console.log(user.dob);
     setGender(user.gender);
     setHeight(user.height);
     setWeight(user.weight);
@@ -518,7 +519,7 @@ function Table({
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                           {u.weight}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
+                        <td className="px-6 py-4 align-start whitespace-nowrap text-end text-sm font-medium">
                           <button
                             onClick={() => {
                               setShowModal(true);
