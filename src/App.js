@@ -109,7 +109,7 @@ function Modal({
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return "Please enter a valid email";
     if (new Date(dob).getFullYear() > 2014)
-      return "DOB can be made only for 2014 born or later";
+      return "DOB can be made only for 2014 born or before";
     if (height < 55) return "Height must be at least 55 (cm)";
     if (weight < 35) return "Weight must be at least 35 (kg)";
   }
