@@ -498,6 +498,8 @@ function Table({
                       <tr
                         className={`rounded-xl bg-${
                           statusColorMap[u.status]
+                        }-100 dark:bg-${
+                          statusColorMap[u.status]
                         }-100`}
                         key={u._id}
                       >
